@@ -3,6 +3,7 @@ using ContosoUniversityTARgv21.Models;
 using ContosoUniversityTARgv21.Models.SchoolViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -67,6 +68,68 @@ namespace ContosoUniversityTARgv21.Controllers
             }
 
             return View(vm);
+        }
+
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var instructor = await _context.Instructors
+                .Include(i => i.OfficeAssignment)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (instructor == null)
+            {
+                return NotFound();
+            }
+
+            return View(instructor);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Post(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var instructorToUpdate = await _context.Instructors
+                .Include(i => i.OfficeAssignment)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (await TryUpdateModelAsync<Instructor>
+                (
+                    instructorToUpdate,
+                    "",
+                    i => i.FirstMidName, i => i.LastName, i => i.HireDate, i => i.OfficeAssignment
+                ))
+            {
+                if (String.IsNullOrWhiteSpace(instructorToUpdate.OfficeAssignment?.Location))
+                {
+                    instructorToUpdate.OfficeAssignment = null;
+                }
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                        "Try again, and if the problem presists, " +
+                        " see your system administrator."
+                        );
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(instructorToUpdate);
         }
     }
 }
