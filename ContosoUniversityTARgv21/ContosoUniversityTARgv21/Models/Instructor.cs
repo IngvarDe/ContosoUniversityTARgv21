@@ -18,7 +18,7 @@ namespace ContosoUniversityTARgv21.Models
 
         [Required]
         [StringLength(50)]
-        [Column("FirstName")]
+        //[Column("FirstMidName")]
         [Display(Name = "First Name")]
         public string FirstMidName { get; set; }
 

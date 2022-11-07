@@ -156,7 +156,7 @@ namespace ContosoUniversityTARgv21.Controllers
                                    orderby d.Name
                                    select d;
             ViewBag.DepartmentId = new SelectList(departmentsQuery.AsNoTracking(),
-                "DepartmentId", "Name", selectedDepartment);
+                "DepartmentID", "Name", selectedDepartment);
         }
     }
 }

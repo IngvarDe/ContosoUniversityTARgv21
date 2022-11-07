@@ -4,6 +4,7 @@ using ContosoUniversityTARgv21.Models.SchoolViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -92,7 +93,7 @@ namespace ContosoUniversityTARgv21.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post(int? id)
+        public async Task<IActionResult> Post(int? id, string[] selectedCourses)
         {
             if (id == null)
             {
@@ -101,6 +102,8 @@ namespace ContosoUniversityTARgv21.Controllers
 
             var instructorToUpdate = await _context.Instructors
                 .Include(i => i.OfficeAssignment)
+                .Include(i => i.CourseAssignments)
+                    .ThenInclude(i => i.Course)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (await TryUpdateModelAsync<Instructor>
@@ -114,6 +117,7 @@ namespace ContosoUniversityTARgv21.Controllers
                 {
                     instructorToUpdate.OfficeAssignment = null;
                 }
+                UpdateInstructorCourses(selectedCourses, instructorToUpdate);
                 try
                 {
                     await _context.SaveChangesAsync();
@@ -130,6 +134,60 @@ namespace ContosoUniversityTARgv21.Controllers
             }
 
             return View(instructorToUpdate);
+        }
+
+        private void UpdateInstructorCourses(string[] selectedCourses, Instructor instructorToUpdate)
+        {
+            if (selectedCourses == null)
+            {
+                instructorToUpdate.CourseAssignments = new List<CourseAssignment>();
+                return;
+            }
+            var selectedCoursesHS = new HashSet<string>(selectedCourses);
+            var instructorCourses = new HashSet<int>(instructorToUpdate.CourseAssignments
+                .Select(c => c.Course.CourseId));
+
+            foreach (var course in _context.Courses)
+            {
+                if (selectedCoursesHS.Contains(course.CourseId.ToString()))
+                {
+                    if (!instructorCourses.Contains(course.CourseId))
+                    {
+                        instructorToUpdate.CourseAssignments.Add(new CourseAssignment
+                        {
+                            InstructorId = instructorToUpdate.Id,
+                            CourseId = course.CourseId,
+                        });
+                    }
+                }
+                else
+                {
+                    if (instructorCourses.Contains(course.CourseId))
+                    {
+                        CourseAssignment courseToRemove = instructorToUpdate.CourseAssignments
+                            .FirstOrDefault(c => c.CourseId == course.CourseId);
+                        _context.Remove(courseToRemove);
+                    }
+                }
+            }
+        }
+
+        private void PopulateAssignedCourseData(Instructor instructor)
+        {
+            var allCourses = _context.Courses;
+            var instructorCourses = new HashSet<int>(instructor.CourseAssignments.Select(c => c.CourseId));
+            var vm = new List<AssignedCourseData>();
+
+            foreach (var course in allCourses)
+            {
+                vm.Add(new AssignedCourseData
+                {
+                    CourseId = course.CourseId,
+                    Title = course.Title,
+                    Assigned = instructorCourses.Contains(course.CourseId)
+                });
+            }
+            ViewData["Courses"] = vm;
         }
     }
 }
