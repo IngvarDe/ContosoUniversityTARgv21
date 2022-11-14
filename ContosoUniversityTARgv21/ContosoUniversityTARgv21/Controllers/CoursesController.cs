@@ -75,9 +75,9 @@ namespace ContosoUniversityTARgv21.Controllers
             return View(course);
         }
 
-        [HttpPost]
+        [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post(int? id)
+        public async Task<IActionResult> EditPost(int? id)
         {
             if (id == null)
             {
@@ -129,6 +129,7 @@ namespace ContosoUniversityTARgv21.Controllers
             return View(course);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -147,6 +148,16 @@ namespace ContosoUniversityTARgv21.Controllers
             }
 
             return View(course);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var course = await _context.Courses.FindAsync(id);
+            _context.Courses.Remove(course);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
 
