@@ -64,7 +64,7 @@ namespace ContosoUniversityTARgv21.Controllers
 
             var course = await _context.Courses
                 .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.CourseId == id);
+                .FirstOrDefaultAsync(m => m.CourseID == id);
 
             if (course == null)
             {
@@ -85,11 +85,11 @@ namespace ContosoUniversityTARgv21.Controllers
             }
 
             var courseToUpdate = await _context.Courses
-                .FirstOrDefaultAsync(c => c.CourseId == id);
+                .FirstOrDefaultAsync(c => c.CourseID == id);
 
             if (await TryUpdateModelAsync<Course>
                 (courseToUpdate, "", 
-                c => c.Credits, c => c.DepartmentId, c => c.Title)
+                c => c.Credits, c => c.DepartmentID, c => c.Title)
                 )
             {
                 try
@@ -105,7 +105,7 @@ namespace ContosoUniversityTARgv21.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            PopulateDepartmentDropDownList(courseToUpdate.DepartmentId);
+            PopulateDepartmentDropDownList(courseToUpdate.DepartmentID);
             return View(courseToUpdate);
         }
 
@@ -119,7 +119,7 @@ namespace ContosoUniversityTARgv21.Controllers
             var course = await _context.Courses
                 .Include(c => c.Department)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.CourseId == id);
+                .FirstOrDefaultAsync(m => m.CourseID == id);
 
             if (course == null)
             {
@@ -139,7 +139,7 @@ namespace ContosoUniversityTARgv21.Controllers
             var course = await _context.Courses
                 .Include(c => c.Department)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.CourseId == id);
+                .FirstOrDefaultAsync(m => m.CourseID == id);
 
             if (course == null)
             {

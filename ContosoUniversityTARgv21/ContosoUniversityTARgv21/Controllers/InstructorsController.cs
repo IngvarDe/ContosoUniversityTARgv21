@@ -23,7 +23,7 @@ namespace ContosoUniversityTARgv21.Controllers
         }
 
 
-        public async Task<IActionResult> Index(int? id, int? courseId)
+        public async Task<IActionResult> Index(int? id, int? courseID)
         {
             var vm = new InstructorIndexData();
 
@@ -42,18 +42,19 @@ namespace ContosoUniversityTARgv21.Controllers
 
             if(id != null)
             {
-                ViewData["InstructorId"] = id.Value;
+                ViewData["InstructorID"] = id.Value;
                 Instructor instructor = vm.Instructors
-                    .Where(i => i.Id == id.Value).Single();
+                    .Where(i => i.ID == id.Value)
+                    .Single();
                 vm.Courses = instructor.CourseAssignments
                     .Select(s => s.Course);
             }
 
-            if(courseId != null)
+            if(courseID != null)
             {
-                ViewData["CourseId"] = courseId.Value;
+                ViewData["CourseID"] = courseID.Value;
                 var selectedCourse = vm.Courses
-                    .Where(x => x.CourseId == courseId)
+                    .Where(x => x.CourseID == courseID)
                     .Single();
 
                 await _context.Entry(selectedCourse)
@@ -82,7 +83,7 @@ namespace ContosoUniversityTARgv21.Controllers
             var instructor = await _context.Instructors
                 .Include(i => i.OfficeAssignment)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
 
             if (instructor == null)
             {
@@ -94,7 +95,7 @@ namespace ContosoUniversityTARgv21.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post(int? id, string[] selectedCourses)
+        public async Task<IActionResult> Edit(int? id, string[] selectedCourses)
         {
             if (id == null)
             {
@@ -105,7 +106,7 @@ namespace ContosoUniversityTARgv21.Controllers
                 .Include(i => i.OfficeAssignment)
                 .Include(i => i.CourseAssignments)
                     .ThenInclude(i => i.Course)
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(s => s.ID == id);
 
             if (await TryUpdateModelAsync<Instructor>
                 (
@@ -149,7 +150,7 @@ namespace ContosoUniversityTARgv21.Controllers
             }
 
             var instructor = await _context.Instructors
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
 
             if (instructor == null)
             {
@@ -165,12 +166,12 @@ namespace ContosoUniversityTARgv21.Controllers
         {
             Instructor instructor = await _context.Instructors
                 .Include(i => i.CourseAssignments)
-                .SingleAsync(i => i.Id == id);
+                .SingleAsync(i => i.ID == id);
 
             var dep = await _context.Departments
-                .Where(d => d.InstructorId == id)
+                .Where(d => d.InstructorID == id)
                 .ToListAsync();
-            dep.ForEach(d => d.InstructorId = null);
+            dep.ForEach(d => d.InstructorID = null);
 
             _context.Instructors.Remove(instructor);
 
@@ -186,7 +187,7 @@ namespace ContosoUniversityTARgv21.Controllers
             }
 
             var instructor = await _context.Instructors
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
 
             if (instructor == null)
             {
@@ -217,8 +218,8 @@ namespace ContosoUniversityTARgv21.Controllers
                 {
                     var courseToAdd = new CourseAssignment
                     {
-                        InstructorId = instructor.Id,
-                        CourseId = int.Parse(course)
+                        InstructorId = instructor.ID,
+                        CourseID = int.Parse(course)
                     };
                     instructor.CourseAssignments.Add(courseToAdd);
                 }
@@ -242,27 +243,27 @@ namespace ContosoUniversityTARgv21.Controllers
             }
             var selectedCoursesHS = new HashSet<string>(selectedCourses);
             var instructorCourses = new HashSet<int>(instructorToUpdate.CourseAssignments
-                .Select(c => c.Course.CourseId));
+                .Select(c => c.Course.CourseID));
 
             foreach (var course in _context.Courses)
             {
-                if (selectedCoursesHS.Contains(course.CourseId.ToString()))
+                if (selectedCoursesHS.Contains(course.CourseID.ToString()))
                 {
-                    if (!instructorCourses.Contains(course.CourseId))
+                    if (!instructorCourses.Contains(course.CourseID))
                     {
                         instructorToUpdate.CourseAssignments.Add(new CourseAssignment
                         {
-                            InstructorId = instructorToUpdate.Id,
-                            CourseId = course.CourseId,
+                            InstructorId = instructorToUpdate.ID,
+                            CourseID = course.CourseID,
                         });
                     }
                 }
                 else
                 {
-                    if (instructorCourses.Contains(course.CourseId))
+                    if (instructorCourses.Contains(course.CourseID))
                     {
                         CourseAssignment courseToRemove = instructorToUpdate.CourseAssignments
-                            .FirstOrDefault(c => c.CourseId == course.CourseId);
+                            .FirstOrDefault(c => c.CourseID == course.CourseID);
                         _context.Remove(courseToRemove);
                     }
                 }
@@ -273,16 +274,16 @@ namespace ContosoUniversityTARgv21.Controllers
         {
             var allCourses = _context.Courses;
             var instructorCourses = new HashSet<int>(instructor.CourseAssignments
-                .Select(c => c.CourseId));
+                .Select(c => c.CourseID));
             var vm = new List<AssignedCourseData>();
 
             foreach (var course in allCourses)
             {
                 vm.Add(new AssignedCourseData
                 {
-                    CourseId = course.CourseId,
+                    CourseId = course.CourseID,
                     Title = course.Title,
-                    Assigned = instructorCourses.Contains(course.CourseId)
+                    Assigned = instructorCourses.Contains(course.CourseID)
                 });
             }
             ViewData["Courses"] = vm;

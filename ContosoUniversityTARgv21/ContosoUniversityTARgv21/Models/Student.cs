@@ -7,7 +7,7 @@ namespace ContosoUniversityTARgv21.Models
 {
     public class Student
     {
-        public int Id { get; set; }
+        public int ID { get; set; }
 
         [Required]
         [StringLength(50), MinLength(2)]
@@ -16,7 +16,7 @@ namespace ContosoUniversityTARgv21.Models
 
         [Required]
         [StringLength(50)]
-        [Column("FirstName")]
+        //[Column("FirstName")]
         [Display(Name = "First Name")]
         public string FirstMidName { get; set; }
 

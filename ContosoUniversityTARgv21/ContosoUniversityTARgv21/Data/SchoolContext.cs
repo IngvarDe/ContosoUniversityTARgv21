@@ -30,7 +30,7 @@ namespace ContosoUniversityTARgv21.Data
             modelBuilder.Entity<CourseAssignment>().ToTable("CourseAssignment");
 
             modelBuilder.Entity<CourseAssignment>()
-                .HasKey(e => new { e.CourseId, e.InstructorId });
+                .HasKey(e => new { e.CourseID, e.InstructorId });
         }
     }
 }

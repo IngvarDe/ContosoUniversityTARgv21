@@ -72,7 +72,7 @@ namespace ContosoUniversityTARgv21.Controllers
                 .Include(s => s.Enrollments)
                     .ThenInclude(e => e.Course)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
 
             if (student == null)
             {
@@ -136,7 +136,7 @@ namespace ContosoUniversityTARgv21.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPost(int? id, Student student)
         {
-            if (id != student.Id)
+            if (id != student.ID)
             {
                 return NotFound();
             }
@@ -169,7 +169,7 @@ namespace ContosoUniversityTARgv21.Controllers
 
             var student = await _context.Students
                 .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.ID == id);
             if (student == null)
             {
                 return NotFound();

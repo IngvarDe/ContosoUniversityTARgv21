@@ -9,7 +9,7 @@ namespace ContosoUniversityTARgv21.Models
 {
     public class Instructor
     {
-        public int Id { get; set; }
+        public int ID { get; set; }
 
         [Required]
         [StringLength(50), MinLength(2)]
